@@ -1,0 +1,39 @@
+# Dans PowerShell, créez le fichier :
+@"
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Modèles entraînés (optionnel - à décommenter si vous voulez les partager)
+# vae_encoder.weights.h5
+# vae_decoder.weights.h5
+# vae_tokenizer.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Virtual Environment
+venv/
+env/
+ENV/
+"@ | Out-File -FilePath .gitignore -Encoding utf8
