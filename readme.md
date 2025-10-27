@@ -403,3 +403,125 @@ Projet de démonstration pour l'apprentissage de l'obfuscation de code et des VA
 
 **Dernière mise à jour :** Octobre 2025
 **Version :** 1.0.0
+
+## 📊 Métriques et Visualisations
+
+### Générer les graphiques d'évaluation
+
+Après avoir entraîné le modèle, vous pouvez générer des visualisations détaillées :
+
+```bash
+python visualize_metrics.py
+```
+
+### Graphiques générés
+
+#### 1. 📈 Courbes d'Entraînement
+
+![Training Curves](examples/training_curves.png)
+
+Ce graphique montre l'évolution pendant l'entraînement :
+
+- **Perte Totale** : Devrait diminuer → le modèle apprend
+- **Reconstruction Loss** : Mesure la qualité de reconstruction du code
+- **KL Divergence** : Régularisation de l'espace latent (augmente légèrement)
+- **Comparaison** : Vue combinée des deux pertes
+
+**Interprétation :**
+
+- ✅ **Bon** : Loss totale diminue de ~13 à ~8-9
+- ✅ **Bon** : KL loss augmente progressivement (pas de "collapse")
+- ❌ **Mauvais** : Loss stagne ou augmente
+
+#### 2. ✅ Qualité de l'Obfuscation
+
+![Obfuscation Quality](examples/obfuscation_quality.png)
+
+Trois métriques importantes :
+
+- **Validité Syntaxique** : % de variantes sans erreur de syntaxe
+  - 🎯 Objectif : > 80%
+- **Nombre de Variantes** : Combien de versions différentes sont générées
+- **Niveau de Modification** : Différence de longueur (proxy pour changements)
+
+**Interprétation :**
+
+- ✅ **Excellent** : 90-100% de validité syntaxique
+- ⚠️ **Acceptable** : 70-90% de validité
+- ❌ **Problème** : < 70% → Le modèle a besoin de plus d'entraînement
+
+#### 3. 🗺️ Espace Latent
+
+![Latent Space](examples/latent_space.png)
+
+Visualisation de l'espace latent appris par le VAE :
+
+- **Distribution des moyennes** : Montre comment les codes sont encodés
+- **Heatmap** : Représentations latentes de différents snippets
+
+**Interprétation :**
+
+- ✅ **Bon** : Distribution proche d'une gaussienne centrée
+- ✅ **Bon** : Snippets similaires ont des représentations proches
+- ❌ **Problème** : Valeurs extrêmes ou distribution uniforme
+
+### Métriques Clés
+
+| Métrique                | Valeur Typique | Interprétation              |
+| ----------------------- | -------------- | --------------------------- |
+| **Perte Finale**        | 8-10           | Plus c'est bas, mieux c'est |
+| **KL Divergence**       | 1.0-2.0        | Régularisation active       |
+| **Validité Syntaxique** | > 80%          | Qualité des variantes       |
+| **Variantes Uniques**   | 3-5            | Diversité                   |
+
+### Pourquoi ces métriques ?
+
+Contrairement aux tâches de classification (où on utilise précision/rappel/F1), l'obfuscation de code est une **tâche générative**. Les métriques appropriées sont :
+
+❌ **Non pertinent pour ce projet :**
+
+- Précision / Recall
+- Matrice de confusion
+- Accuracy
+- F1-Score
+
+✅ **Pertinent pour ce projet :**
+
+- Perte de reconstruction (qualité)
+- KL divergence (régularisation)
+- Validité syntaxique (correction)
+- Diversité des variantes (créativité)
+- Distance d'édition (niveau d'obfuscation)
+
+### Améliorer les Résultats
+
+Si vos métriques ne sont pas satisfaisantes :
+
+1. **Validité syntaxique basse (< 70%)** :
+
+   ```bash
+   # Augmenter les epochs et la taille du dataset
+   # Modifier train.py : epochs=30
+   ```
+
+2. **KL divergence trop faible (< 0.1)** :
+
+   ```python
+   # Dans model_vae.py, augmenter le poids de KL :
+   total_loss = reconstruction_loss + 2.0 * kl_loss  # au lieu de 1.0
+   ```
+
+3. **Perte ne diminue pas** :
+   - Ajouter plus de snippets dans `data/`
+   - Augmenter `latent_dim` à 64
+   - Augmenter la taille du LSTM (128 → 256)
+
+### Exporter les Métriques
+
+Les résultats sont automatiquement sauvegardés dans `examples/` :
+
+- `training_curves.png` - Courbes d'entraînement
+- `obfuscation_quality.png` - Qualité des variantes
+- `latent_space.png` - Visualisation de l'espace latent
+
+Ces graphiques sont parfaits pour inclure dans un rapport, une présentation, ou votre README GitHub !
